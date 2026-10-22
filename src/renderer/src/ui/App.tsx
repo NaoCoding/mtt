@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Maximize2, Minimize2, RotateCcw, RotateCw, WifiOff } from 'lucide-react'
+import { Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Sun, WifiOff } from 'lucide-react'
 
 const counts = [1, 2, 3, 4, 6]
 export default function App() {
@@ -10,6 +10,7 @@ export default function App() {
   const [busy, setBusy] = useState<number | null>(null)
   const [offline, setOffline] = useState<number[]>([])
   const [fullscreenId, setFullscreenId] = useState<number | null>(null)
+  const [lightTheme, setLightTheme] = useState(false)
 
   async function launch(event: FormEvent) {
     event.preventDefault(); setError('')
@@ -50,12 +51,13 @@ export default function App() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to change panel size') }
   }
 
-  return <main className={`app ${launched ? 'launched' : ''}`}>
+  return <main className={`app ${launched ? 'launched' : ''} ${lightTheme ? 'theme-light' : ''}`}>
     <form className="toolbar" onSubmit={launch}>
       <input className="url-input" aria-label="URL" value={url} onChange={e => void updateUrl(e.target.value)} spellCheck={false} />
       <select aria-label="Session count" value={count} onChange={e => void changeCount(Number(e.target.value))}>
         {counts.map(n => <option key={n} value={n}>{n} {n === 1 ? 'session' : 'sessions'}</option>)}
       </select>
+      <button className="theme-toggle" type="button" title={lightTheme ? 'Switch to dark theme' : 'Switch to light theme'} aria-label={lightTheme ? 'Switch to dark theme' : 'Switch to light theme'} aria-pressed={lightTheme} onClick={() => setLightTheme(value => !value)}>{lightTheme ? <Moon size={14} /> : <Sun size={14} />}</button>
       <button className="launch" type="submit">{launched ? 'Open' : 'Launch'}</button>
     </form>
     {error && <div className="error" role="alert">{error}</div>}

@@ -1,24 +1,26 @@
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 body { background: #111315; color: #d8dadd; font: 12px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
-.app { height: 100%; display: flex; flex-direction: column; background: #111315; }
-.toolbar { height: 48px; min-height: 48px; padding: 8px 10px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #2a2d30; }
-input, select, button { color: #d8dadd; background: #1a1d1f; border: 1px solid #34383c; border-radius: 4px; font: inherit; }
+.app { --app-bg: #111315; --panel-bg: #151719; --surface: #1a1d1f; --surface-hover: #292d30; --grid-border: #303438; --control-border: #34383c; --control-hover-border: #42484d; --text: #d8dadd; --muted-text: #9da3a8; --icon-text: #aeb4b8; --focus-border: #60666b; --error-bg: #442a2b; --error-border: #764447; --error-text: #ffd3d4; height: 100%; display: flex; flex-direction: column; color: var(--text); background: var(--app-bg); }
+.app.theme-light { --app-bg: #f2f4f5; --panel-bg: #ffffff; --surface: #e6e9eb; --surface-hover: #d9dee1; --grid-border: #c7cdd1; --control-border: #b8c0c5; --control-hover-border: #9ca7ad; --text: #202528; --muted-text: #58636a; --icon-text: #46535a; --focus-border: #597887; --error-bg: #fff0ef; --error-border: #d69c97; --error-text: #7a2525; }
+.toolbar { height: 48px; min-height: 48px; padding: 8px 10px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--grid-border); }
+input, select, button { color: var(--text); background: var(--surface); border: 1px solid var(--control-border); border-radius: 4px; font: inherit; }
 .url-input { flex: 1; min-width: 80px; height: 30px; padding: 0 9px; outline: none; }
-.url-input:focus, select:focus { border-color: #60666b; }
+.url-input:focus, select:focus { border-color: var(--focus-border); }
 select { height: 30px; padding: 0 8px; }
 button { cursor: pointer; }
-button:hover { background: #292d30; }
+.theme-toggle { width: 30px; height: 30px; display: inline-grid; place-items: center; padding: 0; }
+button:hover { background: var(--surface-hover); }
 button:disabled { opacity: .5; cursor: default; }
-.launch { height: 30px; padding: 0 13px; background: #30363a; border-color: #42484d; }
-.grid { flex: 1; min-height: 0; display: grid; gap: 1px; background: #303438; }
+.launch { height: 30px; padding: 0 13px; background: var(--grid-border); border-color: var(--control-hover-border); }
+.grid { flex: 1; min-height: 0; display: grid; gap: 1px; background: var(--grid-border); }
 .grid.count-1 { grid-template: 1fr / 1fr; }
 .grid.count-2 { grid-template: 1fr / repeat(2, 1fr); }
 .grid.count-3, .grid.count-4 { grid-template: repeat(2, 1fr) / repeat(2, 1fr); }
 .grid.count-6 { grid-template: repeat(2, 1fr) / repeat(3, 1fr); }
-.panel { position: relative; min-width: 0; min-height: 0; background: #151719; }
-.panel-header { position: absolute; top: 0; left: 0; right: 0; height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 7px 0 9px; color: #9da3a8; background: #1a1d1f; border-bottom: 1px solid #303438; }
+.panel { position: relative; min-width: 0; min-height: 0; background: var(--panel-bg); }
+.panel-header { position: absolute; top: 0; left: 0; right: 0; height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 7px 0 9px; color: var(--muted-text); background: var(--surface); border-bottom: 1px solid var(--grid-border); }
 .panel-actions { display: flex; gap: 3px; }
-.panel-actions button { width: 23px; height: 22px; display: inline-grid; place-items: center; padding: 0; border-color: transparent; background: transparent; color: #aeb4b8; }
-.panel-actions button:hover { color: #f1f3f4; background: #303438; }
-.error { position: absolute; z-index: 10; top: 50px; left: 10px; padding: 6px 9px; background: #442a2b; border: 1px solid #764447; border-radius: 4px; color: #ffd3d4; }
+.panel-actions button { width: 23px; height: 22px; display: inline-grid; place-items: center; padding: 0; border-color: transparent; background: transparent; color: var(--icon-text); }
+.panel-actions button:hover { color: var(--text); background: var(--grid-border); }
+.error { position: absolute; z-index: 10; top: 50px; left: 10px; padding: 6px 9px; background: var(--error-bg); border: 1px solid var(--error-border); border-radius: 4px; color: var(--error-text); }
