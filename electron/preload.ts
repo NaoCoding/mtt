@@ -9,6 +9,7 @@ const api = {
   setOffline: (id: number, offline: boolean) => ipcRenderer.invoke('mtt:set-offline', id, offline),
   setNetworkConditions: (id: number, latency: number, downloadKbps: number, uploadKbps: number) =>
     ipcRenderer.invoke('mtt:set-network-conditions', id, latency, downloadKbps, uploadKbps),
+  setDevTools: (id: number, enabled: boolean) => ipcRenderer.invoke('mtt:set-devtools', id, enabled),
   setFullscreen: (id: number, enabled: boolean) => ipcRenderer.invoke('mtt:set-fullscreen', id, enabled),
   capture: (id: number) => ipcRenderer.invoke('mtt:capture', id)
 }

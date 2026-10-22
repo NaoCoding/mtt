@@ -26,7 +26,7 @@ Priorities are provisional and should change with user needs.
 
 ## Phase 4 — Developer tools
 
-- [ ] Add per-session console and DevTools integration.
+- [x] Add per-session console and DevTools integration.
 - [ ] Add network and WebSocket message inspection.
 - [x] Add screenshot capture.
 - [x] Add fullscreen for individual browser panels.

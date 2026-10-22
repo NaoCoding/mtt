@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Camera, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Save, Sun, Trash2, WifiOff } from 'lucide-react'
+import { Camera, Code2, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Save, Sun, Trash2, WifiOff } from 'lucide-react'
 
 const counts = [1, 2, 3, 4, 6]
 const PRESETS_KEY = 'mtt-session-presets'
@@ -21,6 +21,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<number | null>(null)
   const [offline, setOffline] = useState<number[]>([])
+  const [devTools, setDevTools] = useState<number[]>([])
   const [network, setNetwork] = useState(Array.from({ length: 6 }, () => ({ latency: 0, download: 0, upload: 0 })))
   const [presets, setPresets] = useState<SessionPreset[]>(readPresets)
   const [selectedPreset, setSelectedPreset] = useState('')
@@ -40,6 +41,7 @@ export default function App() {
       setFullscreenId(null)
       try { await window.mtt.setFullscreen(fullscreenId, false) } catch (cause) { setError(String(cause)) }
     }
+    if (devTools.some(id => id >= value)) setDevTools(current => current.filter(id => id < value))
     if (launched) { try { await window.mtt.setCount(value) } catch (cause) { setError(String(cause)) } }
   }
   async function updateUrl(value: string) {
@@ -93,6 +95,14 @@ export default function App() {
       setFullscreenId(enabled ? id : null)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to change panel size') }
   }
+  async function toggleDevTools(id: number) {
+    const enabled = !devTools.includes(id)
+    setError('')
+    try {
+      await window.mtt.setDevTools(id, enabled)
+      setDevTools(current => enabled ? [...current, id] : current.filter(item => item !== id))
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to change DevTools state') }
+  }
 
   return <main className={`app ${launched ? 'launched' : ''} ${lightTheme ? 'theme-light' : ''}`}>
     <form className="toolbar" onSubmit={launch}>
@@ -117,6 +127,7 @@ export default function App() {
           <button title={`Reload P${id + 1}`} aria-label={`Reload P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reload')}><RotateCw size={14} /></button>
           <button title={`Reset P${id + 1}`} aria-label={`Reset P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reset')}><RotateCcw size={14} /></button>
           <button title={`Capture P${id + 1}`} aria-label={`Capture P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'capture')}><Camera size={14} /></button>
+          <button title={devTools.includes(id) ? `Close DevTools for P${id + 1}` : `Open DevTools for P${id + 1}`} aria-label={devTools.includes(id) ? `Close DevTools for P${id + 1}` : `Open DevTools for P${id + 1}`} aria-pressed={devTools.includes(id)} onClick={() => void toggleDevTools(id)}><Code2 size={14} /></button>
           <button title={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-label={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-pressed={fullscreenId === id} onClick={() => void toggleFullscreen(id)}>{fullscreenId === id ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
         </div></div><div className="network-controls" aria-label={`Network conditions for P${id + 1}`}>
           <label title="Added round-trip latency in milliseconds">Latency <input aria-label={`Latency for P${id + 1} in milliseconds`} type="number" min="0" max="60000" disabled={offline.includes(id)} value={network[id].latency} onChange={event => void updateNetwork(id, 'latency', event.target.value)} /></label>

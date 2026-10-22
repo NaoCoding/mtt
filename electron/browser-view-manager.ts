@@ -38,6 +38,7 @@ export class BrowserViewManager {
     this.count = count
     if (this.fullscreenId !== null && this.fullscreenId >= count) this.fullscreenId = null
     for (let id = 0; id < count; id++) if (!this.views.has(id)) this.makeView(id)
+    for (const [id, view] of this.views) if (id >= count) view.webContents.closeDevTools()
     this.layout()
   }
   layout(): void {
@@ -66,6 +67,12 @@ export class BrowserViewManager {
     if (enabled) this.fullscreenId = id
     else if (this.fullscreenId === id) this.fullscreenId = null
     this.layout()
+  }
+  setDevTools(id: number, enabled: boolean): void {
+    const view = this.views.get(id)
+    if (!view || id >= this.count) return
+    if (enabled) view.webContents.openDevTools({ mode: 'detach' })
+    else view.webContents.closeDevTools()
   }
   setOffline(id: number, enabled: boolean): void {
     const view = this.views.get(id)

@@ -51,6 +51,11 @@ function registerIpc(): void {
     if (typeof enabled !== 'boolean') throw new Error('Invalid fullscreen setting')
     browserViews?.setFullscreen(sessionId(id), enabled)
   })
+  ipcMain.handle('mtt:set-devtools', (event, id: unknown, enabled: unknown) => {
+    assertRenderer(event)
+    if (typeof enabled !== 'boolean') throw new Error('Invalid DevTools setting')
+    browserViews?.setDevTools(sessionId(id), enabled)
+  })
   ipcMain.handle('mtt:capture', async (event, id: unknown) => {
     assertRenderer(event)
     const panelId = sessionId(id)
