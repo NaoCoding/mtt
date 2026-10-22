@@ -1,5 +1,7 @@
 # MTT — MultiTabTesting
 
+![alt text](project_screenshot.png)
+
 MTT runs multiple isolated browser sessions side by side in one desktop window. It is designed for multiplayer web game testing and other workflows that need independent browser storage.
 
 ## Features
