@@ -55,6 +55,12 @@ export class BrowserViewManager {
     })
   }
   reload(id: number): void { this.views.get(id)?.webContents.reload() }
+  async capture(id: number): Promise<Buffer> {
+    const view = this.views.get(id)
+    if (!view || id >= this.count) throw new Error(`Session P${id + 1} is not active`)
+    const image = await view.webContents.capturePage()
+    return image.toPNG()
+  }
   setFullscreen(id: number, enabled: boolean): void {
     if (enabled) this.fullscreenId = id
     else if (this.fullscreenId === id) this.fullscreenId = null

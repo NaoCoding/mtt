@@ -7,6 +7,7 @@ const api = {
   reload: (id: number) => ipcRenderer.invoke('mtt:reload', id),
   reset: (id: number) => ipcRenderer.invoke('mtt:reset', id),
   setOffline: (id: number, offline: boolean) => ipcRenderer.invoke('mtt:set-offline', id, offline),
-  setFullscreen: (id: number, enabled: boolean) => ipcRenderer.invoke('mtt:set-fullscreen', id, enabled)
+  setFullscreen: (id: number, enabled: boolean) => ipcRenderer.invoke('mtt:set-fullscreen', id, enabled),
+  capture: (id: number) => ipcRenderer.invoke('mtt:capture', id)
 }
 contextBridge.exposeInMainWorld('mtt', api)

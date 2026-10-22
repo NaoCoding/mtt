@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Sun, WifiOff } from 'lucide-react'
+import { Camera, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Sun, WifiOff } from 'lucide-react'
 
 const counts = [1, 2, 3, 4, 6]
 export default function App() {
@@ -29,7 +29,7 @@ export default function App() {
     setUrl(value)
     if (launched) { try { await window.mtt.setUrl(value) } catch (cause) { setError(String(cause)) } }
   }
-  async function action(id: number, kind: 'reload' | 'reset') {
+  async function action(id: number, kind: 'reload' | 'reset' | 'capture') {
     setBusy(id); setError('')
     try { await window.mtt[kind](id) } catch (cause) { setError(cause instanceof Error ? cause.message : `Unable to ${kind} P${id + 1}`) }
     finally { setBusy(null) }
@@ -67,6 +67,7 @@ export default function App() {
           <button title={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-label={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-pressed={offline.includes(id)} onClick={() => void toggleOffline(id)}><WifiOff size={14} /></button>
           <button title={`Reload P${id + 1}`} aria-label={`Reload P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reload')}><RotateCw size={14} /></button>
           <button title={`Reset P${id + 1}`} aria-label={`Reset P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reset')}><RotateCcw size={14} /></button>
+          <button title={`Capture P${id + 1}`} aria-label={`Capture P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'capture')}><Camera size={14} /></button>
           <button title={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-label={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-pressed={fullscreenId === id} onClick={() => void toggleFullscreen(id)}>{fullscreenId === id ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
         </div></header>
       </div>)}

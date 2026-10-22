@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { join } from 'node:path'
+import { writeFile } from 'node:fs/promises'
 import { BrowserViewManager, normalizeUrl } from './browser-view-manager'
 import { SessionManager } from './session-manager'
 
@@ -40,6 +41,18 @@ function registerIpc(): void {
     assertRenderer(event)
     if (typeof enabled !== 'boolean') throw new Error('Invalid fullscreen setting')
     browserViews?.setFullscreen(sessionId(id), enabled)
+  })
+  ipcMain.handle('mtt:capture', async (event, id: unknown) => {
+    assertRenderer(event)
+    const panelId = sessionId(id)
+    if (!mainWindow || !browserViews) throw new Error('No active browser window')
+    const result = await dialog.showSaveDialog(mainWindow, {
+      defaultPath: `MTT-P${panelId + 1}.png`,
+      filters: [{ name: 'PNG Image', extensions: ['png'] }]
+    })
+    if (result.canceled || !result.filePath) return
+    const png = await browserViews.capture(panelId)
+    await writeFile(result.filePath, png)
   })
 }
 

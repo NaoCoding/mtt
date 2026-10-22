@@ -8,5 +8,6 @@ interface Window {
     reset(id: number): Promise<void>
     setOffline(id: number, offline: boolean): Promise<void>
     setFullscreen(id: number, enabled: boolean): Promise<void>
+    capture(id: number): Promise<void>
   }
 }
