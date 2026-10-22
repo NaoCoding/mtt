@@ -1,16 +1,19 @@
-import { session, type Session } from 'electron'
+import type { Session } from 'electron'
 
 export interface ManagedSession { id: number; partition: string; session: Session }
 
 export class SessionManager {
   private readonly sessions = new Map<number, ManagedSession>()
+  private readonly fromPartition: (partition: string) => Session
   private generation = 0
+
+  constructor(fromPartition: (partition: string) => Session) { this.fromPartition = fromPartition }
 
   create(id: number): ManagedSession {
     const existing = this.sessions.get(id)
     if (existing) return existing
     const partition = `mtt-${id}-${this.generation++}`
-    const ses = session.fromPartition(partition)
+    const ses = this.fromPartition(partition)
     ses.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false))
     const managed = { id, partition, session: ses }
     this.sessions.set(id, managed)

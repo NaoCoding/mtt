@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, session } from 'electron'
 import { join } from 'node:path'
 import { writeFile } from 'node:fs/promises'
 import { BrowserViewManager, normalizeUrl } from './browser-view-manager'
@@ -70,7 +70,7 @@ async function createWindow(): Promise<void> {
     backgroundColor: '#111315', title: 'MTT', webPreferences: {
       preload: join(__dirname, '../preload/preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true
     } })
-  const sessions = new SessionManager()
+  const sessions = new SessionManager(partition => session.fromPartition(partition))
   browserViews = new BrowserViewManager(mainWindow, sessions)
   mainWindow.on('resize', () => browserViews?.layout())
   mainWindow.on('closed', () => { browserViews?.destroyAll(); browserViews = null; mainWindow = null })

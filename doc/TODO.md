@@ -4,7 +4,7 @@ Priorities are provisional and should change with user needs.
 
 ## Phase 1 — MVP hardening
 
-- [ ] Add focused automated coverage for grid calculations and session lifecycle.
+- [x] Add focused automated coverage for grid calculations and session lifecycle.
 - [ ] Add packaging and cross-platform release configuration.
 - [ ] Review window and navigation behavior on macOS, Windows, and Linux.
 
