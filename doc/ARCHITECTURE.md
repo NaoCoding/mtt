@@ -13,11 +13,11 @@ MTT is a local Electron desktop application. `electron-vite` builds the main pro
 
 ## Session isolation and reset
 
-Every panel receives its own uniquely named, non-persistent Electron partition (`mtt-<panel>-<generation>`). Electron therefore gives each panel separate cookies, local storage, IndexedDB, cache, and other session data. Reload preserves that partition and its data. Reset clears the panel's session data and loads the current shared URL again. Removed panels are closed and their sessions are no longer used; re-adding one receives a fresh partition name.
+Every panel receives its own uniquely named, non-persistent Electron partition (`mtt-<panel>-<generation>`). Electron therefore gives each panel separate cookies, local storage, IndexedDB, cache, and other session data. Reload preserves that partition and its data. Reset clears the panel's session data and loads the current shared URL again. Offline mode uses network emulation on that panel's isolated session, so other panels remain connected; reconnecting disables emulation. Removed panels are closed and their sessions are no longer used; re-adding one receives a fresh partition name.
 
 ## Views and layout
 
-The toolbar occupies 48 DIP at the top of the window. Each grid cell has a 26 DIP React header; a `WebContentsView` is placed below it so it cannot cover the toolbar or panel buttons. The main process calculates columns and rows (1×1, 2×1, 2×2, or 3×2) and updates view bounds after resizing. Renderer layout and main-process bounds use the same fixed toolbar, header, and one-pixel gap measurements.
+The toolbar occupies 48 DIP at the top of the window. Each grid cell has a 26 DIP React header; a `WebContentsView` is placed below it so it cannot cover the toolbar or panel buttons. The main process calculates columns and rows (1×1, 2×1, 2×2, or 3×2) and updates view bounds after resizing. Renderer layout and main-process bounds use the same fixed toolbar, header, and one-pixel gap measurements. A panel can fill the browser area while keeping the toolbar and its header controls visible. Resizing reapplies that layout, and reducing the session count exits fullscreen when it removes the selected panel.
 
 `BrowserViewManager` handles view creation and destruction. `GridLayoutManager` is intentionally a pure calculation (`calculateGrid`) so geometry can be adjusted independently. The BrowserWindow resize handler reapplies geometry to all active views.
 

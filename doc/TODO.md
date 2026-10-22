@@ -19,7 +19,7 @@ Priorities are provisional and should change with user needs.
 
 ## Phase 3 — Network simulation
 
-- [ ] Add per-session offline mode.
+- [x] Add per-session offline mode.
 - [ ] Add configurable latency and download/upload bandwidth throttling.
 - [ ] Support reconnection testing.
 - [ ] Investigate packet loss simulation feasibility.
@@ -29,7 +29,7 @@ Priorities are provisional and should change with user needs.
 - [ ] Add per-session console and DevTools integration.
 - [ ] Add network and WebSocket message inspection.
 - [ ] Add screenshot capture.
-- [ ] Add fullscreen for individual browser panels.
+- [x] Add fullscreen for individual browser panels.
 
 ## Phase 5 — Automation
 
