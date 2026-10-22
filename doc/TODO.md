@@ -44,4 +44,4 @@ Priorities are provisional and should change with user needs.
 - [ ] Add keyboard shortcuts and saved workspaces.
 - [ ] Add session presets.
 - [ ] Add cross-platform packaging improvements.
-- [ ] Add an optional light theme.
+- [x] Add an optional light theme.
