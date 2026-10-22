@@ -13,7 +13,7 @@ MTT is a local Electron desktop application. `electron-vite` builds the main pro
 
 ## Session isolation and reset
 
-Every panel receives its own uniquely named, non-persistent Electron partition (`mtt-<panel>-<generation>`). Electron therefore gives each panel separate cookies, local storage, IndexedDB, cache, and other session data. Reload preserves that partition and its data. Reset clears the panel's session data and loads the current shared URL again. Offline mode uses network emulation on that panel's isolated session, so other panels remain connected; reconnecting disables emulation. Removed panels are closed and their sessions are no longer used; re-adding one receives a fresh partition name.
+Every panel receives its own uniquely named, non-persistent Electron partition (`mtt-<panel>-<generation>`). Electron therefore gives each panel separate cookies, local storage, IndexedDB, cache, and other session data. Reload preserves that partition and its data. Reset clears the panel's session data and loads the current shared URL again. Offline mode uses network emulation on that panel's isolated session, so other panels remain connected; reconnecting disables emulation. Screenshot capture renders the selected panel's current page to PNG and saves it through a native save dialog. Removed panels are closed and their sessions are no longer used; re-adding one receives a fresh partition name.
 
 ## Views and layout
 
