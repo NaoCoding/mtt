@@ -10,6 +10,8 @@ input, select, button { color: var(--text); background: var(--surface); border: 
 select { height: 30px; padding: 0 8px; }
 button { cursor: pointer; }
 .theme-toggle { width: 30px; height: 30px; display: inline-grid; place-items: center; padding: 0; }
+.preset-select { width: 104px; }
+.preset-button { width: 30px; height: 30px; display: inline-grid; place-items: center; padding: 0; }
 button:hover { background: var(--surface-hover); }
 button:disabled { opacity: .5; cursor: default; }
 .launch { height: 30px; padding: 0 13px; background: var(--grid-border); border-color: var(--control-hover-border); }

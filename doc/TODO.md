@@ -42,6 +42,6 @@ Priorities are provisional and should change with user needs.
 
 - [ ] Add custom grid layouts and resizable panel boundaries.
 - [ ] Add keyboard shortcuts and saved workspaces.
-- [ ] Add session presets.
+- [x] Add session presets.
 - [ ] Add cross-platform packaging improvements.
 - [x] Add an optional light theme.

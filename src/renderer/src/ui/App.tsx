@@ -1,7 +1,19 @@
-import { useState, type FormEvent } from 'react'
-import { Camera, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Sun, WifiOff } from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Camera, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Save, Sun, Trash2, WifiOff } from 'lucide-react'
 
 const counts = [1, 2, 3, 4, 6]
+const PRESETS_KEY = 'mtt-session-presets'
+interface SessionPreset { name: string; url: string; count: number }
+
+function readPresets(): SessionPreset[] {
+  try {
+    const stored: unknown = JSON.parse(localStorage.getItem(PRESETS_KEY) ?? '[]')
+    if (!Array.isArray(stored)) return []
+    return stored.filter((item): item is SessionPreset => typeof item === 'object' && item !== null &&
+      typeof item.name === 'string' && typeof item.url === 'string' && typeof item.count === 'number' && counts.includes(item.count))
+  } catch { return [] }
+}
+
 export default function App() {
   const [url, setUrl] = useState('http://localhost:3000')
   const [count, setCount] = useState(4)
@@ -10,8 +22,12 @@ export default function App() {
   const [busy, setBusy] = useState<number | null>(null)
   const [offline, setOffline] = useState<number[]>([])
   const [network, setNetwork] = useState(Array.from({ length: 6 }, () => ({ latency: 0, download: 0, upload: 0 })))
+  const [presets, setPresets] = useState<SessionPreset[]>(readPresets)
+  const [selectedPreset, setSelectedPreset] = useState('')
   const [fullscreenId, setFullscreenId] = useState<number | null>(null)
   const [lightTheme, setLightTheme] = useState(false)
+
+  useEffect(() => { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)) }, [presets])
 
   async function launch(event: FormEvent) {
     event.preventDefault(); setError('')
@@ -29,6 +45,24 @@ export default function App() {
   async function updateUrl(value: string) {
     setUrl(value)
     if (launched) { try { await window.mtt.setUrl(value) } catch (cause) { setError(String(cause)) } }
+  }
+  function savePreset() {
+    const name = window.prompt('Name this session preset')?.trim()
+    if (!name) return
+    setPresets(current => [...current.filter(preset => preset.name !== name), { name, url, count }].sort((a, b) => a.name.localeCompare(b.name)))
+    setSelectedPreset(name)
+  }
+  function selectPreset(name: string) {
+    setSelectedPreset(name)
+    const preset = presets.find(item => item.name === name)
+    if (!preset) return
+    void updateUrl(preset.url)
+    void changeCount(preset.count)
+  }
+  function deletePreset() {
+    if (!selectedPreset) return
+    setPresets(current => current.filter(preset => preset.name !== selectedPreset))
+    setSelectedPreset('')
   }
   async function action(id: number, kind: 'reload' | 'reset' | 'capture') {
     setBusy(id); setError('')
@@ -66,6 +100,12 @@ export default function App() {
       <select aria-label="Session count" value={count} onChange={e => void changeCount(Number(e.target.value))}>
         {counts.map(n => <option key={n} value={n}>{n} {n === 1 ? 'session' : 'sessions'}</option>)}
       </select>
+      <select className="preset-select" aria-label="Saved session presets" value={selectedPreset} onChange={event => selectPreset(event.target.value)}>
+        <option value="">Presets</option>
+        {presets.map(preset => <option key={preset.name} value={preset.name}>{preset.name}</option>)}
+      </select>
+      <button className="preset-button" type="button" title="Save current URL and session count as a preset" aria-label="Save session preset" onClick={savePreset}><Save size={14} /></button>
+      <button className="preset-button" type="button" title="Delete selected preset" aria-label="Delete selected preset" disabled={!selectedPreset} onClick={deletePreset}><Trash2 size={14} /></button>
       <button className="theme-toggle" type="button" title={lightTheme ? 'Switch to dark theme' : 'Switch to light theme'} aria-label={lightTheme ? 'Switch to dark theme' : 'Switch to light theme'} aria-pressed={lightTheme} onClick={() => setLightTheme(value => !value)}>{lightTheme ? <Moon size={14} /> : <Sun size={14} />}</button>
       <button className="launch" type="submit">{launched ? 'Open' : 'Launch'}</button>
     </form>
