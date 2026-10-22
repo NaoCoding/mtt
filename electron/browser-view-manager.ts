@@ -7,6 +7,7 @@ export class BrowserViewManager {
   private readonly views = new Map<number, WebContentsView>()
   private count = 0
   private url = 'http://localhost:3000'
+  private fullscreenId: number | null = null
   constructor(private readonly window: BrowserWindow, private readonly sessions: SessionManager) {}
 
   private makeView(id: number): WebContentsView {
@@ -34,11 +35,18 @@ export class BrowserViewManager {
   setUrl(url: string): void { this.url = normalizeUrl(url) }
   setCount(count: number): void {
     this.count = count
+    if (this.fullscreenId !== null && this.fullscreenId >= count) this.fullscreenId = null
     for (let id = 0; id < count; id++) if (!this.views.has(id)) this.makeView(id)
     this.layout()
   }
   layout(): void {
     const { width, height } = this.window.getContentBounds()
+    if (this.fullscreenId !== null) {
+      for (const [id, view] of this.views) view.setBounds(id === this.fullscreenId
+        ? { x: 0, y: TOOLBAR_HEIGHT + 26, width, height: Math.max(0, height - TOOLBAR_HEIGHT - 26) }
+        : { x: 0, y: 0, width: 0, height: 0 })
+      return
+    }
     const cells = calculateGrid(this.count, width, Math.max(0, height - TOOLBAR_HEIGHT))
     for (const [id, view] of this.views) if (id >= this.count) view.setBounds({ x: 0, y: 0, width: 0, height: 0 })
     for (const cell of cells) this.views.get(cell.id)?.setBounds({
@@ -47,6 +55,16 @@ export class BrowserViewManager {
     })
   }
   reload(id: number): void { this.views.get(id)?.webContents.reload() }
+  setFullscreen(id: number, enabled: boolean): void {
+    if (enabled) this.fullscreenId = id
+    else if (this.fullscreenId === id) this.fullscreenId = null
+    this.layout()
+  }
+  setOffline(id: number, enabled: boolean): void {
+    const view = this.views.get(id)
+    if (!view) return
+    this.sessions.get(id).session.enableNetworkEmulation({ offline: enabled, latency: 0, downloadThroughput: -1, uploadThroughput: -1 })
+  }
   async reset(id: number): Promise<void> {
     const view = this.views.get(id)
     if (!view) return
@@ -61,6 +79,7 @@ export class BrowserViewManager {
     this.window.contentView.removeChildView(view)
     view.webContents.close()
     this.views.delete(id)
+    if (this.fullscreenId === id) this.fullscreenId = null
     this.sessions.delete(id)
   }
   destroyAll(): void { for (const id of [...this.views.keys()]) this.destroy(id); this.sessions.clear() }

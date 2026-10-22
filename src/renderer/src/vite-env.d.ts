@@ -6,5 +6,7 @@ interface Window {
     setUrl(url: string): Promise<void>
     reload(id: number): Promise<void>
     reset(id: number): Promise<void>
+    setOffline(id: number, offline: boolean): Promise<void>
+    setFullscreen(id: number, enabled: boolean): Promise<void>
   }
 }

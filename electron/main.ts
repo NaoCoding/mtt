@@ -31,6 +31,16 @@ function registerIpc(): void {
   })
   ipcMain.handle('mtt:reload', (event, id: unknown) => { assertRenderer(event); browserViews?.reload(sessionId(id)) })
   ipcMain.handle('mtt:reset', async (event, id: unknown) => { assertRenderer(event); await browserViews?.reset(sessionId(id)) })
+  ipcMain.handle('mtt:set-offline', (event, id: unknown, offline: unknown) => {
+    assertRenderer(event)
+    if (typeof offline !== 'boolean') throw new Error('Invalid network setting')
+    browserViews?.setOffline(sessionId(id), offline)
+  })
+  ipcMain.handle('mtt:set-fullscreen', (event, id: unknown, enabled: unknown) => {
+    assertRenderer(event)
+    if (typeof enabled !== 'boolean') throw new Error('Invalid fullscreen setting')
+    browserViews?.setFullscreen(sessionId(id), enabled)
+  })
 }
 
 async function createWindow(): Promise<void> {
