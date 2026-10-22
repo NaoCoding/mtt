@@ -5,6 +5,7 @@ import { calculateGrid } from './grid-layout'
 const TOOLBAR_HEIGHT = 48
 export class BrowserViewManager {
   private readonly views = new Map<number, WebContentsView>()
+  private readonly networkConditions = new Map<number, { latency: number; downloadKbps: number; uploadKbps: number }>()
   private count = 0
   private url = 'http://localhost:3000'
   private fullscreenId: number | null = null
@@ -69,7 +70,24 @@ export class BrowserViewManager {
   setOffline(id: number, enabled: boolean): void {
     const view = this.views.get(id)
     if (!view) return
-    this.sessions.get(id).session.enableNetworkEmulation({ offline: enabled, latency: 0, downloadThroughput: -1, uploadThroughput: -1 })
+    const conditions = this.networkConditions.get(id) ?? { latency: 0, downloadKbps: 0, uploadKbps: 0 }
+    this.sessions.get(id).session.enableNetworkEmulation({
+      offline: enabled,
+      latency: conditions.latency,
+      downloadThroughput: conditions.downloadKbps === 0 ? -1 : Math.max(1, Math.floor(conditions.downloadKbps * 125)),
+      uploadThroughput: conditions.uploadKbps === 0 ? -1 : Math.max(1, Math.floor(conditions.uploadKbps * 125))
+    })
+  }
+  setNetworkConditions(id: number, latency: number, downloadKbps: number, uploadKbps: number): void {
+    const view = this.views.get(id)
+    if (!view) return
+    this.networkConditions.set(id, { latency, downloadKbps, uploadKbps })
+    this.sessions.get(id).session.enableNetworkEmulation({
+      offline: false,
+      latency,
+      downloadThroughput: downloadKbps === 0 ? -1 : Math.max(1, Math.floor(downloadKbps * 125)),
+      uploadThroughput: uploadKbps === 0 ? -1 : Math.max(1, Math.floor(uploadKbps * 125))
+    })
   }
   async reset(id: number): Promise<void> {
     const view = this.views.get(id)
@@ -85,6 +103,7 @@ export class BrowserViewManager {
     this.window.contentView.removeChildView(view)
     view.webContents.close()
     this.views.delete(id)
+    this.networkConditions.delete(id)
     if (this.fullscreenId === id) this.fullscreenId = null
     this.sessions.delete(id)
   }

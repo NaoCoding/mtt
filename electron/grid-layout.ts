@@ -10,6 +10,6 @@ export function calculateGrid(count: number, width: number, height: number): Gri
   const cellHeight = Math.floor((height - gap * (rows - 1)) / rows)
   return Array.from({ length: count }, (_, id) => ({
     id, x: (id % columns) * (cellWidth + gap), y: Math.floor(id / columns) * (cellHeight + gap),
-    width: cellWidth, height: cellHeight, headerHeight: 26
+    width: cellWidth, height: cellHeight, headerHeight: 60
   }))
 }

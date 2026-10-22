@@ -20,7 +20,7 @@ Priorities are provisional and should change with user needs.
 ## Phase 3 — Network simulation
 
 - [x] Add per-session offline mode.
-- [ ] Add configurable latency and download/upload bandwidth throttling.
+- [x] Add configurable latency and download/upload bandwidth throttling.
 - [ ] Support reconnection testing.
 - [ ] Investigate packet loss simulation feasibility.
 

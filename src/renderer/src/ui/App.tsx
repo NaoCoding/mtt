@@ -9,6 +9,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<number | null>(null)
   const [offline, setOffline] = useState<number[]>([])
+  const [network, setNetwork] = useState(Array.from({ length: 6 }, () => ({ latency: 0, download: 0, upload: 0 })))
   const [fullscreenId, setFullscreenId] = useState<number | null>(null)
   const [lightTheme, setLightTheme] = useState(false)
 
@@ -42,6 +43,14 @@ export default function App() {
       setOffline(current => enabled ? [...current, id] : current.filter(item => item !== id))
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to change network mode') }
   }
+  async function updateNetwork(id: number, field: 'latency' | 'download' | 'upload', rawValue: string) {
+    const value = Math.max(0, Number(rawValue) || 0)
+    const next = { ...network[id], [field]: value }
+    setNetwork(current => current.map((profile, index) => index === id ? next : profile))
+    setError('')
+    try { await window.mtt.setNetworkConditions(id, next.latency, next.download, next.upload) }
+    catch (cause) { setError(cause instanceof Error ? cause.message : `Unable to update network conditions for P${id + 1}`) }
+  }
   async function toggleFullscreen(id: number) {
     const enabled = fullscreenId !== id
     setError('')
@@ -63,12 +72,16 @@ export default function App() {
     {error && <div className="error" role="alert">{error}</div>}
     <section className={`grid count-${count}`} aria-label="Browser sessions">
       {Array.from({ length: launched ? count : 0 }, (_, id) => id).filter(id => fullscreenId === null || fullscreenId === id).map(id => <div className="panel" key={id}>
-        <header className="panel-header"><span>P{id + 1}</span><div className="panel-actions">
+        <header className="panel-header"><div className="panel-topline"><span>P{id + 1}</span><div className="panel-actions">
           <button title={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-label={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-pressed={offline.includes(id)} onClick={() => void toggleOffline(id)}><WifiOff size={14} /></button>
           <button title={`Reload P${id + 1}`} aria-label={`Reload P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reload')}><RotateCw size={14} /></button>
           <button title={`Reset P${id + 1}`} aria-label={`Reset P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reset')}><RotateCcw size={14} /></button>
           <button title={`Capture P${id + 1}`} aria-label={`Capture P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'capture')}><Camera size={14} /></button>
           <button title={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-label={fullscreenId === id ? `Restore P${id + 1}` : `Fullscreen P${id + 1}`} aria-pressed={fullscreenId === id} onClick={() => void toggleFullscreen(id)}>{fullscreenId === id ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+        </div></div><div className="network-controls" aria-label={`Network conditions for P${id + 1}`}>
+          <label title="Added round-trip latency in milliseconds">Latency <input aria-label={`Latency for P${id + 1} in milliseconds`} type="number" min="0" max="60000" disabled={offline.includes(id)} value={network[id].latency} onChange={event => void updateNetwork(id, 'latency', event.target.value)} /></label>
+          <label title="Download limit in kilobits per second; 0 means unlimited">Down <input aria-label={`Download limit for P${id + 1} in kilobits per second`} type="number" min="0" max="1000000" disabled={offline.includes(id)} value={network[id].download} onChange={event => void updateNetwork(id, 'download', event.target.value)} /></label>
+          <label title="Upload limit in kilobits per second; 0 means unlimited">Up <input aria-label={`Upload limit for P${id + 1} in kilobits per second`} type="number" min="0" max="1000000" disabled={offline.includes(id)} value={network[id].upload} onChange={event => void updateNetwork(id, 'upload', event.target.value)} /></label>
         </div></header>
       </div>)}
     </section>

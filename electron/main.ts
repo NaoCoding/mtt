@@ -37,6 +37,15 @@ function registerIpc(): void {
     if (typeof offline !== 'boolean') throw new Error('Invalid network setting')
     browserViews?.setOffline(sessionId(id), offline)
   })
+  ipcMain.handle('mtt:set-network-conditions', (event, id: unknown, latency: unknown, downloadKbps: unknown, uploadKbps: unknown) => {
+    assertRenderer(event)
+    if (![latency, downloadKbps, uploadKbps].every(value => typeof value === 'number' && Number.isFinite(value))) {
+      throw new Error('Invalid network conditions')
+    }
+    const values = [latency, downloadKbps, uploadKbps] as number[]
+    if (values.some(value => value < 0 || value > 1_000_000) || values[0] > 60_000) throw new Error('Network conditions are out of range')
+    browserViews?.setNetworkConditions(sessionId(id), values[0], values[1], values[2])
+  })
   ipcMain.handle('mtt:set-fullscreen', (event, id: unknown, enabled: unknown) => {
     assertRenderer(event)
     if (typeof enabled !== 'boolean') throw new Error('Invalid fullscreen setting')
