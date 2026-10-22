@@ -21,7 +21,7 @@ Priorities are provisional and should change with user needs.
 
 - [x] Add per-session offline mode.
 - [x] Add configurable latency and download/upload bandwidth throttling.
-- [ ] Support reconnection testing.
+- [x] Support reconnection testing.
 - [ ] Investigate packet loss simulation feasibility.
 
 ## Phase 4 — Developer tools

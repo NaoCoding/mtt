@@ -37,6 +37,13 @@ function registerIpc(): void {
     if (typeof offline !== 'boolean') throw new Error('Invalid network setting')
     browserViews?.setOffline(sessionId(id), offline)
   })
+  ipcMain.handle('mtt:disconnect-for', (event, id: unknown, durationMs: unknown) => {
+    assertRenderer(event)
+    if (typeof durationMs !== 'number' || !Number.isInteger(durationMs) || durationMs < 1000 || durationMs > 300000) {
+      throw new Error('Reconnect test duration must be between 1 and 300 seconds')
+    }
+    browserViews?.disconnectFor(sessionId(id), durationMs)
+  })
   ipcMain.handle('mtt:set-network-conditions', (event, id: unknown, latency: unknown, downloadKbps: unknown, uploadKbps: unknown) => {
     assertRenderer(event)
     if (![latency, downloadKbps, uploadKbps].every(value => typeof value === 'number' && Number.isFinite(value))) {

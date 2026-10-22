@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Camera, Code2, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Save, Sun, Trash2, WifiOff } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { Camera, Code2, Maximize2, Minimize2, Moon, RotateCcw, RotateCw, Save, Sun, Timer, Trash2, WifiOff } from 'lucide-react'
 
 const counts = [1, 2, 3, 4, 6]
 const PRESETS_KEY = 'mtt-session-presets'
@@ -21,6 +21,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<number | null>(null)
   const [offline, setOffline] = useState<number[]>([])
+  const reconnectTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>())
   const [devTools, setDevTools] = useState<number[]>([])
   const [network, setNetwork] = useState(Array.from({ length: 6 }, () => ({ latency: 0, download: 0, upload: 0 })))
   const [presets, setPresets] = useState<SessionPreset[]>(readPresets)
@@ -73,11 +74,28 @@ export default function App() {
   }
   async function toggleOffline(id: number) {
     const enabled = !offline.includes(id)
+    const timer = reconnectTimers.current.get(id)
+    if (timer) clearTimeout(timer)
+    reconnectTimers.current.delete(id)
     setError('')
     try {
       await window.mtt.setOffline(id, enabled)
       setOffline(current => enabled ? [...current, id] : current.filter(item => item !== id))
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to change network mode') }
+  }
+  async function testReconnect(id: number) {
+    const timer = reconnectTimers.current.get(id)
+    if (timer) clearTimeout(timer)
+    reconnectTimers.current.delete(id)
+    setError('')
+    try {
+      await window.mtt.disconnectFor(id, 5000)
+      setOffline(current => current.includes(id) ? current : [...current, id])
+      reconnectTimers.current.set(id, setTimeout(() => {
+        reconnectTimers.current.delete(id)
+        setOffline(current => current.filter(item => item !== id))
+      }, 5000))
+    } catch (cause) { setError(cause instanceof Error ? cause.message : `Unable to test reconnection for P${id + 1}`) }
   }
   async function updateNetwork(id: number, field: 'latency' | 'download' | 'upload', rawValue: string) {
     const value = Math.max(0, Number(rawValue) || 0)
@@ -124,6 +142,7 @@ export default function App() {
       {Array.from({ length: launched ? count : 0 }, (_, id) => id).filter(id => fullscreenId === null || fullscreenId === id).map(id => <div className="panel" key={id}>
         <header className="panel-header"><div className="panel-topline"><span>P{id + 1}</span><div className="panel-actions">
           <button title={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-label={offline.includes(id) ? `Reconnect P${id + 1}` : `Take P${id + 1} offline`} aria-pressed={offline.includes(id)} onClick={() => void toggleOffline(id)}><WifiOff size={14} /></button>
+          <button title={`Simulate a 5-second disconnect and reconnect for P${id + 1}`} aria-label={`Test reconnection for P${id + 1}`} disabled={offline.includes(id)} onClick={() => void testReconnect(id)}><Timer size={14} /></button>
           <button title={`Reload P${id + 1}`} aria-label={`Reload P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reload')}><RotateCw size={14} /></button>
           <button title={`Reset P${id + 1}`} aria-label={`Reset P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'reset')}><RotateCcw size={14} /></button>
           <button title={`Capture P${id + 1}`} aria-label={`Capture P${id + 1}`} disabled={busy === id} onClick={() => void action(id, 'capture')}><Camera size={14} /></button>

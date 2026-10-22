@@ -7,6 +7,7 @@ const api = {
   reload: (id: number) => ipcRenderer.invoke('mtt:reload', id),
   reset: (id: number) => ipcRenderer.invoke('mtt:reset', id),
   setOffline: (id: number, offline: boolean) => ipcRenderer.invoke('mtt:set-offline', id, offline),
+  disconnectFor: (id: number, durationMs: number) => ipcRenderer.invoke('mtt:disconnect-for', id, durationMs),
   setNetworkConditions: (id: number, latency: number, downloadKbps: number, uploadKbps: number) =>
     ipcRenderer.invoke('mtt:set-network-conditions', id, latency, downloadKbps, uploadKbps),
   setDevTools: (id: number, enabled: boolean) => ipcRenderer.invoke('mtt:set-devtools', id, enabled),

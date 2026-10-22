@@ -7,6 +7,7 @@ interface Window {
     reload(id: number): Promise<void>
     reset(id: number): Promise<void>
     setOffline(id: number, offline: boolean): Promise<void>
+    disconnectFor(id: number, durationMs: number): Promise<void>
     setNetworkConditions(id: number, latency: number, downloadKbps: number, uploadKbps: number): Promise<void>
     setDevTools(id: number, enabled: boolean): Promise<void>
     setFullscreen(id: number, enabled: boolean): Promise<void>

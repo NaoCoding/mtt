@@ -6,6 +6,7 @@ const TOOLBAR_HEIGHT = 48
 export class BrowserViewManager {
   private readonly views = new Map<number, WebContentsView>()
   private readonly networkConditions = new Map<number, { latency: number; downloadKbps: number; uploadKbps: number }>()
+  private readonly offlineTimers = new Map<number, ReturnType<typeof setTimeout>>()
   private count = 0
   private url = 'http://localhost:3000'
   private fullscreenId: number | null = null
@@ -77,6 +78,9 @@ export class BrowserViewManager {
   setOffline(id: number, enabled: boolean): void {
     const view = this.views.get(id)
     if (!view) return
+    const timer = this.offlineTimers.get(id)
+    if (timer) clearTimeout(timer)
+    this.offlineTimers.delete(id)
     const conditions = this.networkConditions.get(id) ?? { latency: 0, downloadKbps: 0, uploadKbps: 0 }
     this.sessions.get(id).session.enableNetworkEmulation({
       offline: enabled,
@@ -84,6 +88,14 @@ export class BrowserViewManager {
       downloadThroughput: conditions.downloadKbps === 0 ? -1 : Math.max(1, Math.floor(conditions.downloadKbps * 125)),
       uploadThroughput: conditions.uploadKbps === 0 ? -1 : Math.max(1, Math.floor(conditions.uploadKbps * 125))
     })
+  }
+  disconnectFor(id: number, durationMs: number): void {
+    this.setOffline(id, true)
+    const timer = setTimeout(() => {
+      this.offlineTimers.delete(id)
+      this.setOffline(id, false)
+    }, durationMs)
+    this.offlineTimers.set(id, timer)
   }
   setNetworkConditions(id: number, latency: number, downloadKbps: number, uploadKbps: number): void {
     const view = this.views.get(id)
@@ -111,6 +123,9 @@ export class BrowserViewManager {
     view.webContents.close()
     this.views.delete(id)
     this.networkConditions.delete(id)
+    const timer = this.offlineTimers.get(id)
+    if (timer) clearTimeout(timer)
+    this.offlineTimers.delete(id)
     if (this.fullscreenId === id) this.fullscreenId = null
     this.sessions.delete(id)
   }

@@ -11,6 +11,7 @@ MTT runs multiple isolated browser sessions side by side in one desktop window. 
 - Shared URL navigation, with per-session reload and reset
 - Named session presets for saving and restoring a URL and session count
 - Per-session network emulation with latency and upload/download limits
+- Timed disconnect and reconnect tests for each session
 - Per-session detached Chromium DevTools, including the console
 - Native Electron `WebContentsView` browser panels
 
@@ -29,6 +30,8 @@ npm run dev
 Enter an HTTP or HTTPS URL (for example, `http://localhost:3000`), choose a session count, and select **Launch**. The default is four sessions. Use the panel controls to reload one session or clear its browsing state and reopen the current URL.
 
 Each panel's network controls add latency in milliseconds and limit upload or download speed in kilobits per second. A value of `0` leaves that setting unlimited. Taking a panel offline preserves its configured conditions for when it reconnects.
+
+Use the timer button in a panel header to take that session offline for five seconds and reconnect automatically. The page stays loaded so it can respond to the browser's offline and online events.
 
 Use the preset selector to restore a saved URL and session count. The save button stores the current settings under a name, and the delete button removes the selected preset. Presets are stored on this device.
 
